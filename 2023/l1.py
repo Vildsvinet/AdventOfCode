@@ -2,8 +2,6 @@ digit_dict = {'one': '1', 'two': '2', 'three': '3', 'four': '4', 'five': '5', 's
                  'nine': '9', '1':'1', '2':'2', '3':'3','4':'4', '5':'5', '6':'6','7':'7','8':'8','9':'9'}
 
 
-#def read_digits(row):
-
 
 def read_first_digit(row):
     for i in range(1, len(row)+1):
