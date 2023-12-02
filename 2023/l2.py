@@ -1,5 +1,5 @@
 def max_shown(row):
-    row= row.strip()
+    row = row.strip()
 
     max_no_of_reds_shown = 0
     max_no_of_blues_shown = 0
@@ -21,7 +21,7 @@ def max_shown(row):
                 max_no_of_reds_shown = number
             if 'green' in color and number > max_no_of_greens_shown:
                 max_no_of_greens_shown = number
-    print("id:", game_id, "\tblå:", max_no_of_blues_shown, "\tred:", max_no_of_reds_shown, "\tgrön:", max_no_of_greens_shown)
+    # print("id:", game_id, "\tblå:", max_no_of_blues_shown, "\tred:", max_no_of_reds_shown, "\tgrön:", max_no_of_greens_shown)
 
     return game_id, max_no_of_blues_shown, max_no_of_reds_shown, max_no_of_greens_shown
 
@@ -32,15 +32,19 @@ def is_possible(min_blue_needed, min_red_needed, min_green_needed, blue_in_box, 
 
 def main():
     blue_in_box, red_in_box, green_in_box = 14, 12, 13
-    tot_sum = 0
+    tot_sum_part1 = 0
+    tot_sum_part2 = 0
     with open("input2.txt", 'r') as inp:
         for row in inp:
             game_id, min_blue_needed, min_red_needed, min_green_needed = max_shown(row)
             if is_possible(min_blue_needed, min_red_needed, min_green_needed, blue_in_box, red_in_box, green_in_box):
-                print(game_id, "was possible!")
-                tot_sum += int(game_id)
+                tot_sum_part1 += int(game_id)
 
-    print(tot_sum)
+            tot_sum_part2 += min_blue_needed * min_red_needed * min_green_needed
+
+        print(tot_sum_part1)
+        print(tot_sum_part2)
+
 
 if __name__ == "__main__":
     main()
