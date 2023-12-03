@@ -1,5 +1,7 @@
 non_symbols = ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9', '.']
 
+asteriscs = {}
+
 
 def is_symbol(char):
     return char not in non_symbols
@@ -12,6 +14,8 @@ def find_symbols(matrix):
         for j in range(len(matrix[0])):
             if is_symbol(matrix[i][j]):
                 symbol_indices.add((i, j))
+                if matrix[i][j] == '*':
+                    asteriscs[(i,j)] = []
 
     return symbol_indices
 
@@ -36,9 +40,6 @@ def adjacent_indices(index, no_of_rows, no_of_columns):
     if i != no_of_rows - 1 and j != 0:
         adjacent_indices.add((i + 1, j - 1))
     return adjacent_indices
-
-
-print(adjacent_indices((5, 7), 6, 8))
 
 
 def read_file():
@@ -82,6 +83,9 @@ def is_part_number(number, no_of_lines, line_len, symbol_indices):
     for i in indices:
         adj = adjacent_indices(i, no_of_lines, line_len)
         if not adj.isdisjoint(symbol_indices):
+            nearby_stars = [ind for ind in adj if ind in asteriscs.keys()]
+            for star in nearby_stars:
+                asteriscs[star].append(value)
             return True
     return False
 
@@ -111,6 +115,14 @@ def main():
             if is_part_number(number_candidate, no_of_lines, line_len, symbol_indices):
                 sum_of_part_numbers += number_candidate[0]
         line_nr += 1
+
+    gear_ratio_sum = 0
+    print(asteriscs)
+    for star in asteriscs:
+        if len(asteriscs[star]) == 2:
+            gear_ratio_sum += asteriscs[star][0] * asteriscs[star][1]
+
+    print(gear_ratio_sum)
 
     return sum_of_part_numbers
 
