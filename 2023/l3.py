@@ -1,7 +1,5 @@
 non_symbols = ['1', '2', '3', '4', '5', '6', '7', '8', '9', '.']
-no_of_lines = 5
-line_len = 10
-symbol_indices = set()
+
 
 def is_symbol(char):
     return char not in non_symbols
@@ -9,7 +7,7 @@ def is_symbol(char):
 
 def find_symbols(matrix):
     global symbol_indices
-    #symbol_indices = set()
+    symbol_indices = set()
     for i in range(len(matrix)):
         for j in range(len(matrix[0])):
             if is_symbol(matrix[i][j]):
@@ -56,28 +54,28 @@ def is_adjacent(index, matrix):
 
 
 def find_number_in_line(line, start_at):
-    number = ''
+    number = '0'
     number_indices = []
-    for c in range(len(line)):
+    for c in range(start_at, len(line)):
         if (line[c].isdigit()):
-            nr1 += line1[c]
-            nr1_indices.append((0, c))
-            if c+1 == len(line) - 1 or not line1[c + 1].isdigit():
+            number += line[c]
+            number_indices.append((0, c))
+            if c+1 == len(line) - 1 or not line[c + 1].isdigit():
                 break
-    return int(number), number_indices, c
+    return int(number), number_indices, c+1
 
 def find_all_numbers_in_line(line):
     numbers_on_line = []
     numbers_on_line_indices = []
     start_at = 0
-    while start_at < len(line)-1:
+    while start_at <= len(line)-1:
         found_number, found_number_indices, start_at = find_number_in_line(line, start_at)
         numbers_on_line.append(found_number)
         numbers_on_line_indices.append(found_number_indices)
 
     return numbers_on_line, numbers_on_line_indices
 
-def is_part_number(number):
+def is_part_number(number, no_of_lines, line_len, symbol_indices):
     value, indices = number
     for i in indices:
         adj = adjacent_indices(i, no_of_lines, line_len)
@@ -87,10 +85,10 @@ def is_part_number(number):
 
 
 def main():
+    sum_of_part_numbers = 0
+
     data = [s.strip() for s in read_file()]
-    global no_of_lines
     no_of_lines = len(data)  # aka number of rows
-    global line_len
     line_len = len(data[0])  # aka number of columns
     print(data)
 
@@ -100,20 +98,19 @@ def main():
         elem_matrix.append([ch for ch in line])
     print(elem_matrix)
 
+    symbol_indices = find_symbols(elem_matrix)
+
     # do the thing
-    line1 = data[0]
-    nr1 = ''
-    nr1_indices = []
-    for c in range(line_len):
-        if (line1[c].isdigit()):
-            nr1 += line1[c]
-            nr1_indices.append((0, c))
-            try:
-                if not line1[c + 1].isdigit(): break
-            except IndexError:
-                break
-    print("number on pos: ", nr1_indices, "")
+    for line in data:
+        numbers_on_line, numbers_on_line_indices = find_all_numbers_in_line(line)
+        number_candidates = zip(numbers_on_line, numbers_on_line_indices)
+        for number_candidate in number_candidates:
+            print(number_candidate)
+            if is_part_number(number_candidate, no_of_lines, line_len, symbol_indices):
+                sum_of_part_numbers += number_candidate[0]
+
+    return  sum_of_part_numbers
 
 
 if __name__ == "__main__":
-    main()
+    print(main())
