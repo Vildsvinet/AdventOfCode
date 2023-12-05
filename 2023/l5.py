@@ -22,9 +22,19 @@ def read_input(filename):
     return seeds, maps
 
 
-def parse_seeds(seed_line: str):  # -> list:
+def parse_seeds(seed_line: str)-> list:
+    """
+    Save seed info
+    :param seed_line: the first line in the input file, seedstart+range
+    :return: a list of tuples called seeds, each with start and range
+    """
+    seeds = []
     str_seeds = seed_line.strip().split(':')[1].strip().split(' ')
-    return [int(s) for s in str_seeds]
+
+    for i in range(0, len(str_seeds), 2):
+        seeds.append((int(str_seeds[i]), int(str_seeds[i+1])))
+
+    return seeds
 
 
 def find_destination_from_source(nr: int, amap) -> int:
@@ -58,7 +68,12 @@ def find_location_from_seed(seed: int, maps: list):
 if __name__ == '__main__':
     seeds, maps = read_input("input5.txt")
     # print(find_destination_from_source(55, maps[0]))
-    seed_locations = []
-    for seed in seeds:
-        seed_locations.append(find_location_from_seed(seed, maps))
-    print(min(seed_locations))
+    min_location = 1000000000000
+    for seed_tuple in seeds:
+        seed_start, seed_range = seed_tuple
+        for s in range(seed_start, seed_start+seed_range):
+            location = find_location_from_seed(s, maps)
+            if location < min_location:
+                min_location = location
+        break
+    print(min_location)
