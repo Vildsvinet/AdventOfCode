@@ -38,9 +38,30 @@ def calc_nr_of_ways(race):
     return ways_counter
 
 
+def calc_first(race):
+    race_time, record = race
+    for i in range(race_time):
+        if beats_record(calc_distance(race_time, i), record):
+            return i
+
+def calc_last(race):
+    race_time, record = race
+    for i in range(race_time):
+        if beats_record(calc_distance(race_time, race_time - i), record):
+            return race_time - i
+
 if __name__ == '__main__':
-    races = parse_input("input6.txt")
-    tot_prod = 1
-    for race in races:
-        tot_prod *= (calc_nr_of_ways(race))
-    print(tot_prod)
+    # part 1:
+    # races = parse_input('input6.txt')
+    # tot_prod = 1
+    # for race in races:
+    #     tot_prod *= (calc_nr_of_ways(race))
+    # print(tot_prod)
+
+    one_race = (46857582, 208141212571410)
+    one_race_test = (71530, 940200)
+    first_beat = calc_first(one_race)
+    print(first_beat)
+    last_beat = calc_last(one_race)
+    print(last_beat)
+    print(last_beat-first_beat+1)
