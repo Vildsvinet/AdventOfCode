@@ -95,7 +95,6 @@ def determine_hand_type(hand):
         return HandType.HIGH_CARD
 
 
-
 def card_value(card):
     allowed_cards = ['A', 'K', 'Q', 'J', 'T', '9', '8', '7', '6', '5', '4', '3', '2']
     if card not in allowed_cards:
@@ -116,17 +115,6 @@ def card_value(card):
             return int(card)
 
 
-# def compare_strengths(hand1: Hand, hand2: Hand):
-#     strength1 = hand1.hand_type_value()
-#     strength2 = hand2.hand_type_value()
-#     if strength1 == strength2:
-#         return compare_cards(hand1.cards, hand2.cards)
-#     elif strength1 > strength2:
-#         return hand1
-#     else:
-#         return hand2
-
-
 def parse_hand(line: str):
     cards_string, bet_string = line.strip().split(' ')
     cards = [c for c in cards_string]
@@ -134,23 +122,14 @@ def parse_hand(line: str):
     return cards, bet
 
 
-# def compare_cards(h1: Hand, h2: Hand):
-#     h1_value = high_card_value(h1)
-#     h2_value = high_card_value(h2)
-#     if h1_value == h2_value:
-#         return h1
-#     else:
-#         return h2
-
-
-
 def high_card_value(hand):
     cards, _ = hand
-    cards = sorted(cards, key=lambda c: card_value(c))
+    # cards = sorted(cards, key=lambda c: card_value(c))
+    cards = list(reversed(cards))
     value = 0
     for i in range(HAND_SIZE):
         card = cards[i]
-        value += card_value(card) * 14 ** (i)
+        value += card_value(card) * 14 ** i
     # print(hand, value)
     return value
 
@@ -178,7 +157,7 @@ def read_input(filename: str) -> list:
 def main():
     hands = read_input("input7.txt")
     print(len(hands))
-    print(len(set(hands)))
+    # print(len(set(hands)))
     # print(hands)
     hands = sort_hands(hands)
     total_winnings = 0
