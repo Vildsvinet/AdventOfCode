@@ -95,6 +95,52 @@ def determine_hand_type(hand):
         return HandType.HIGH_CARD
 
 
+def determine_hand_type_part2(hand):
+    cards, bet = hand
+    no_of_jokers = cards.count('J')
+    if no_of_jokers == 5:
+        return HandType.FIVE_OF_A_KIND
+    if no_of_jokers == 0:
+        return determine_hand_type(hand)
+    cards_less = [c for c in cards if c != 'J']
+    if no_of_jokers == 4:
+        return HandType.FIVE_OF_A_KIND
+    if no_of_jokers == 3:
+        if len(set(cards_less)) == 1:
+            return HandType.FIVE_OF_A_KIND
+        elif len(set(cards_less)) == 2:
+            return HandType.FOUR_OF_A_KIND
+        else:
+            print("Something mysterious for case 3 jokers")
+            raise ValueError
+    if no_of_jokers == 1:
+        match determine_hand_type((cards_less, bet)):
+            case HandType.FOUR_OF_A_KIND:
+                return HandType.FIVE_OF_A_KIND
+            case HandType.THREE_OF_A_KIND:
+                return HandType.FOUR_OF_A_KIND
+            case HandType.TWO_PAIR:
+                return HandType.FULL_HOUSE
+            case  HandType.ONE_PAIR:
+                return HandType.THREE_OF_A_KIND
+            case HandType.HIGH_CARD:
+                return HandType.ONE_PAIR
+            case _ :
+                print("no handtype for lessened hand")
+                raise ValueError
+    if no_of_jokers == 2:
+        match determine_hand_type((cards_less, bet)):
+            case HandType.THREE_OF_A_KIND:
+                return HandType.FIVE_OF_A_KIND
+            case HandType.ONE_PAIR:
+                return HandType.FOUR_OF_A_KIND
+            case HandType.HIGH_CARD:
+                return HandType.THREE_OF_A_KIND
+    raise Exception("something wrong in determine_hand_type_part2")
+
+
+
+
 def card_value(card):
     allowed_cards = ['A', 'K', 'Q', 'J', 'T', '9', '8', '7', '6', '5', '4', '3', '2']
     if card not in allowed_cards:
@@ -108,7 +154,7 @@ def card_value(card):
         case 'Q':
             return 12
         case 'J':
-            return 11
+            return 1
         case 'T':
             return 10
         case _:
@@ -135,7 +181,7 @@ def high_card_value(hand):
 
 
 def total_hand_value(hand):
-    hand_type = determine_hand_type(hand)
+    hand_type = determine_hand_type_part2(hand)
     value = hand_type_value(hand_type) * 14**5
     value += high_card_value(hand)
     return value
