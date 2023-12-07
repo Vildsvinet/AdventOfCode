@@ -56,6 +56,11 @@ def find_destination_from_source(nr: int, amap) -> int:
     return dest
 
 
+def merge_maps(map1, map2):
+    # eg: a->b, b->c => a->c
+    pass
+
+
 def find_location_from_seed(seed: int, maps: list):
     source = seed
     for i in range(len(maps)):  # this destination is next source
@@ -66,7 +71,7 @@ def find_location_from_seed(seed: int, maps: list):
 
 
 if __name__ == '__main__':
-    seeds, maps = read_input("input5.txt")
+    seeds, maps = read_input("input5_test.txt")
     # print(find_destination_from_source(55, maps[0]))
     min_location = 1000000000000
     for seed_tuple in seeds:
@@ -76,4 +81,5 @@ if __name__ == '__main__':
             if location < min_location:
                 min_location = location
         break
+    print(maps)
     print(min_location)
