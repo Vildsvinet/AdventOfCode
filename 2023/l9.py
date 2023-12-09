@@ -16,7 +16,7 @@ def calculate_deltas(row):
 
 def procces_report(report):
     history = []
-    current = report
+    current = report.copy()
     while not all([x==0 for x in current]):
         history.append(current)
         current = calculate_deltas(current)
@@ -41,10 +41,10 @@ def extrapolate_backwards(history):
     increase = 0
     length = len(extrap)
     for i in range(length):
-        extrap[i].reverse()
+        # extrap[i].reverse()
         last_value = extrap[i][0]
-        extrap[i].append(last_value + increase)
-        increase = last_value + increase
+        extrap[i].insert(0, last_value - increase)
+        increase = last_value - increase
     return extrap
 
 
@@ -57,38 +57,47 @@ def main():
     lasts = []
 
 
-    extraps_backw = histories.copy()
-    extrapolations_backw = []
-    firsts = []
 
     with open("input9.txt", 'r') as inp:
         for line in inp:
             line = line.strip().split(' ')
             reports.append([int(x) for x in line])
 
-        # print(reports)
-    print(histories)
+
     for report in reports:
         histories.append(procces_report(report))
-    # print(histories)
 
-    for history in extraps:
-        extrapolations.append(extrapolate(history))
-        # print("HAALL", extrapolations)
-    # print(histories)
+    print(histories)
 
-    for extrp in extrapolations:
-        # print("hej", extrp)
-        lasts.append(extrp[-1][-1])
+    # for history in histories:
+    #     # print("hej", history)
+    #     extrapolations.append(extrapolate(history))
+    #     # print("HAALL", extrapolations)
+    # print(histories)
+    # # print(extrapolations)
+    #
+    # for extrp in extrapolations:
+    #     # print("hej", extrp)
+    #     lasts.append(extrp[-1][-1])
+
+
+    extraps_backw = histories.copy()
+    extrapolations_backw = []
+    firsts = []
+
+    print(histories)
+    print(reports)
 
     for history in extraps_backw:
-        extrapolations_backw.append(extrapolate(history))
-        print(extrapolations_backw)
+        extrapolations_backw.append(extrapolate_backwards(history))
+        # print(extrapolations_backw)
 
     for extrp in extrapolations_backw:
-        firsts.append(extrp[-1][-1])
+        firsts.append(extrp[-1][0])
 
     # print(extrapolations)
+    # print(lasts)
+    print(firsts)
     print(sum( lasts))
     print(sum( firsts))
 
