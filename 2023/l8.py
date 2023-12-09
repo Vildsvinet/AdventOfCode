@@ -1,3 +1,5 @@
+import math
+
 def read_input():
     lrinstructions = []
     graph_representation1 = []
@@ -41,6 +43,15 @@ def determine_all_start_nodes(graphrep: dict):
     return start_nodes
 
 
+def determine_all_end_nodes(graphrep: dict):
+    end_nodes = []
+    for node in graphrep:  # iterates over keys
+        if node[-1] == 'Z':
+            end_nodes.append(node)
+    print(end_nodes)
+    return end_nodes
+
+
 def end_condition_met(node_list: list) -> bool:
     for node in node_list:
         if node[-1] != 'Z':
@@ -61,6 +72,41 @@ def move_node(lr: str, node_children: tuple):
     if lr == 'R': return right
     raise ValueError("something wrong in lr instructions")
     return None
+
+
+def find_all_zs(lrinstr: list, node, graphrep: dict):
+    checkpoints = []
+    current = node
+    steps_there = 1
+    i = 0
+    max_i = len(lrinstr)
+
+    while len(checkpoints) < 25:
+        if i == max_i:
+            i = 0
+        current = move_node(lrinstr[i], graphrep[current])
+        if current[-1] == 'Z':
+            checkpoints.append((current, steps_there))
+            steps_there = 0
+        steps_there += 1
+        i += 1
+    return checkpoints
+
+
+def find_first_z(lrinstr: list, node, graphrep: dict):
+    current = node
+    steps_there = 1
+    i = 0
+    max_i = len(lrinstr)
+    while True:
+        if i == max_i:
+            i = 0
+        current = move_node(lrinstr[i], graphrep[current])
+        if current[-1] == 'Z':
+            break
+        steps_there += 1
+        i += 1
+    return steps_there
 
 
 def part2(lrinstr: list, graphrep: dict):
@@ -107,9 +153,22 @@ def traverser(lrinstr, graphrep):
 
 def main():
     lrinstructions, graph_representation = parse_input()
-    print(part2(lrinstructions, graph_representation))
+    # print(part2(lrinstructions, graph_representation))
     # print(lrinstructions, graph_representation)
-    # determine_all_start_nodes(graph_representation)
+    start_nodes = determine_all_start_nodes(graph_representation)
+    end_nodes = determine_all_end_nodes(graph_representation)
+    steps_to_first = []
+    for n in range(len(start_nodes)):
+        print(start_nodes[n])
+        steps_to_first.append(find_first_z(lrinstructions, start_nodes[n], graph_representation))
+
+    tot_res = 1
+    for f in steps_to_first:
+        tot_res *= f
+    print(steps_to_first)
+    print(math.lcm(*steps_to_first))
+    # end_list = find_all_zs(lrinstructions, start_nodes[1], graph_representation)
+    # print(end_list)
     # steps = traverser(lrinstructions, graph_representation)
     # print(steps)
 
