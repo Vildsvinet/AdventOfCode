@@ -30,4 +30,26 @@ test_list.sort(key = lambda tpl: values(tpl[0]))
 
 
 t1 = [3, 4, 2, 1, 3, 3, 3]
-print(([t1.count(c) for c in t1]))
+# print(([t1.count(c) for c in t1]))
+
+
+test = 1
+test2 = 2
+
+match test:
+    case 0:
+        match test2:
+            case 0:
+                print("c00")
+            case 1:
+                print("c01")
+    case 1:
+        match test2:
+            case 0:
+                print("c10")
+            case 1:
+                print("c11")
+            case 2:
+                print("c12")
+
+
