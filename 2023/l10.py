@@ -9,55 +9,55 @@ class Dir(Enum):
     INVALID = 4
 
 
-def match_F(frm):
-    if frm == Dir.DOWN:
+def match_F(direction):
+    if direction == Dir.UP:
         return Dir.RIGHT
-    elif frm == Dir.RIGHT:
+    elif direction == Dir.LEFT:
         return Dir.DOWN
     else:
         raise Exception("Cannot enter F-pipe like that.")
 
 
-def match_dash(frm):
-    if frm == Dir.LEFT:
+def match_dash(direction):
+    if direction == Dir.RIGHT:
         return Dir.RIGHT
-    elif frm == Dir.RIGHT:
+    elif direction == Dir.LEFT:
         return Dir.LEFT
     else:
         raise Exception("Cannot enter -pipe like that.")
 
 
-def match_vbar(frm):
-    if frm == Dir.UP:
+def match_vbar(direction):
+    if direction == Dir.DOWN:
         return Dir.DOWN
-    elif frm == Dir.DOWN:
+    elif direction == Dir.UP:
         return Dir.UP
     else:
         raise Exception("Cannot enter |pipe like that.")
 
 
-def match_J(frm):
-    if frm == Dir.UP:
+def match_J(direction):
+    if direction == Dir.DOWN:
         return Dir.LEFT
-    elif frm == Dir.LEFT:
+    elif direction == Dir.RIGHT:
         return Dir.UP
     else:
         raise Exception("Cannot enter J-pipe like that.")
 
 
-def match_L(frm):
-    if frm == Dir.UP:
+def match_L(direction):
+    if direction == Dir.DOWN:
         return Dir.RIGHT
-    elif frm == Dir.RIGHT:
+    elif direction == Dir.LEFT:
         return Dir.UP
     else:
         raise Exception("Cannot enter L-pipe like that.")
 
 
-def match_seven(frm):
-    if frm == Dir.DOWN:
+def match_seven(direction):
+    if direction == Dir.UP:
         return Dir.LEFT
-    elif frm == Dir.LEFT:
+    elif direction == Dir.RIGHT:
         return Dir.DOWN
     else:
         raise Exception("Cannot enter 7-pipe like that.")
@@ -67,35 +67,35 @@ def idx_change(to):
     chng = (0, 0)
     match to:
         case Dir.LEFT:
-            chng = (-1, 0)
-        case Dir.RIGHT:
-            chng = (1, 0)
-        case Dir.UP:
             chng = (0, -1)
-        case Dir.DOWN:
+        case Dir.RIGHT:
             chng = (0, 1)
+        case Dir.UP:
+            chng = (-1, 0)
+        case Dir.DOWN:
+            chng = (1, 0)
         case _:
             raise Exception("Invalid direction")
     return chng
 
 
-def nxt(frm, shape):
+def move(shape, direction):
     nxt_dir = None
     match shape:
         case 'F':
-            nxt_dir = match_F(frm)
+            nxt_dir = match_F(direction)
         case '-':
-            nxt_dir = match_dash(frm)
+            nxt_dir = match_dash(direction)
         case '|':
-            nxt_dir = match_vbar(frm)
+            nxt_dir = match_vbar(direction)
         case 'J':
-            nxt_dir = match_J(frm)
+            nxt_dir = match_J(direction)
         case 'L':
-            nxt_dir = match_L(frm)
+            nxt_dir = match_L(direction)
         case '7':
-            nxt_dir = match_seven(frm)
+            nxt_dir = match_seven(direction)
         case '.':
-            raise Exception("Reached a .", frm, shape)
+            raise Exception("Reached a .", direction, shape)
         case _:
             raise Exception("This is not even a pipe..")
     deltas = idx_change(nxt_dir)
@@ -110,30 +110,38 @@ def find_start(maze):
                 return (i, j)
 
 
-def traverse(maze, start):
-    i = 0
-    si, sj = start
-    trails = []
-    current = start
-    trails.append(start)
-    # start at S, check all adjacent
-    # check up:
-    next_symbol = maze[si + 1][sj]
-    next_dir = Dir.DOWN
-    (di, dj), nxt_dir = nxt(next_dir, next_symbol)
-    current = si + di, sj + dj
-    while current != 'S' and i < 10:
-        print(next_symbol)
-        i += 1
-        ci, cj = current
+def traverse(maze, start_idx):
+    # i = 0   # debug counter
+    symbol_trail = []
+    idx_trail = []
 
-        trails.append(next_symbol)
-        (di, dj), nxt_dir = nxt(next_dir, next_symbol)
-        next_symbol = maze[ci][cj]
-    print(trails)
-    return trails
+    # startup
+    si, sj = start_idx
+    symbol_trail.append(maze[si][sj])
+    idx_trail.append(start_idx)
 
-    # if adjacent is a possible route, add a new trail
+    # go downwards from start
+    current_index = start_idx
+    current_symbol = '|'  # pretend. should later be maze[current_idx]
+    current_direction = Dir.DOWN
+
+    while current_symbol != 'S':
+        # i += 1  #debug counter
+
+        (di, dj), nxt_direction = move(current_symbol, current_direction)
+        next_index = current_index[0] + di, current_index[1] + dj
+        ni, nj = next_index
+        nxt_symbol = maze[ni][nj]
+
+        current_index = next_index
+        current_direction = nxt_direction
+        current_symbol = nxt_symbol
+
+        idx_trail.append(current_index)
+        symbol_trail.append(current_symbol)
+
+    # print(idx_trail, symbol_trail)
+    return idx_trail, symbol_trail
 
 
 def read_input(filename):
@@ -144,10 +152,81 @@ def read_input(filename):
     return maze
 
 
+def draw_outline(maze, route):
+    outl = []
+
+    for row in range(len(maze)):
+        outrow = []
+        for col in range(len(maze[row])):
+            if (row, col) in route:
+                # print("woo")
+                outrow.append('|')
+            else:
+                outrow.append(' ')
+        outl.append(outrow)
+    # print(*outl)
+    return outl
+
+
+# print a 2D array
+def print_maze(arr):
+    for row in arr:
+        print(''.join(row))
+
+
+def check_if_inside(point, curve, h, w):
+    # arr = [[a0,b0,c0],[a1,b1,c1],[a2,b2,c2]]
+    cross_counter_right = 0
+    cross_counter_down = 0
+
+    i, j = point
+
+    # check row i to end
+    for c in range(j, w):
+        if (i, c) in curve:
+            cross_counter_right += 1
+
+    # check column j to bottom
+    for r in range(i, h):
+        if (r, j) in curve:
+            cross_counter_down += 1
+
+    if cross_counter_right % 2 == 0 and cross_counter_down % 2 == 0:
+        return False
+    elif cross_counter_right % 2 == 1 and cross_counter_down % 2 == 1:
+        print(point, "was inside the curve")
+        return True
+    else:
+        print("indeterminate, think more about")
+        return False
+
+
+# perform check_if_inside for every index in ranges (h,w)
+def count_insides(curve, h, w):
+    counter = 0
+    for i in range(h):
+        for j in range(w):
+            if not (i, j) in curve:
+                if check_if_inside((i, j), curve, h, w):
+                    counter += 1
+    return counter
+
 def main():
     maze = read_input("input10.txt")
     start = find_start(maze)
-    trails = traverse(maze, start)
+    idx_trail, symbol_trail = traverse(maze, start)
+    print(len(symbol_trail))
+    furthest = (len(symbol_trail) - 1) / 2
+    print(furthest)
+
+    outl = draw_outline(maze, idx_trail)
+    print_maze(outl)
+
+    height = len(maze)
+    width = len(maze[0])
+
+    points_inside = count_insides(idx_trail, height, width)
+    print(points_inside)
 
 
 if __name__ == "__main__":
