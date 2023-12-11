@@ -114,6 +114,7 @@ def traverse(maze, start_idx):
     # i = 0   # debug counter
     symbol_trail = []
     idx_trail = []
+    dir_trail = []
 
     # startup
     si, sj = start_idx
@@ -139,9 +140,10 @@ def traverse(maze, start_idx):
 
         idx_trail.append(current_index)
         symbol_trail.append(current_symbol)
+        dir_trail.append(current_direction)
 
     # print(idx_trail, symbol_trail)
-    return idx_trail, symbol_trail
+    return idx_trail, symbol_trail, dir_trail
 
 
 def read_input(filename):
@@ -152,17 +154,18 @@ def read_input(filename):
     return maze
 
 
-def draw_outline(maze, route):
+def draw_outline(maze, route, symbls):
     outl = []
 
     for row in range(len(maze)):
         outrow = []
         for col in range(len(maze[row])):
             if (row, col) in route:
-                # print("woo")
-                outrow.append('|')
+                idx = route.index((row, col))
+                symbol = symbls[idx]
+                outrow.append(symbol)
             else:
-                outrow.append(' ')
+                outrow.append('.')
         outl.append(outrow)
     # print(*outl)
     return outl
@@ -174,7 +177,15 @@ def print_maze(arr):
         print(''.join(row))
 
 
-def check_if_inside(point, curve, h, w):
+def direction_of_point_on_curve(point, curve, dirs):
+    # print("hej")
+    # find the index of the point in the curve
+    idx = curve.index(point)
+    # return dir[that index]
+    return dirs[idx]
+
+
+def check_if_inside(point, curve, dirs, h, w):
     # arr = [[a0,b0,c0],[a1,b1,c1],[a2,b2,c2]]
     cross_counter_right = 0
     cross_counter_down = 0
@@ -183,12 +194,16 @@ def check_if_inside(point, curve, h, w):
 
     # check row i to end
     for c in range(j, w):
-        if (i, c) in curve:
+        if (i, c) in curve and \
+                not (direction_of_point_on_curve((i,c), curve, dirs) == Dir.RIGHT \
+                or direction_of_point_on_curve((i,c), curve, dirs) == Dir.LEFT):
             cross_counter_right += 1
 
     # check column j to bottom
     for r in range(i, h):
-        if (r, j) in curve:
+        if (r, j) in curve and \
+                not (direction_of_point_on_curve((r,j), curve, dirs) == Dir.DOWN \
+                        or direction_of_point_on_curve((r,j), curve, dirs) == Dir.UP):
             cross_counter_down += 1
 
     if cross_counter_right % 2 == 0 and cross_counter_down % 2 == 0:
@@ -197,35 +212,37 @@ def check_if_inside(point, curve, h, w):
         print(point, "was inside the curve")
         return True
     else:
-        print("indeterminate, think more about")
+        # print("indeterminate, think more about")
         return False
 
 
 # perform check_if_inside for every index in ranges (h,w)
-def count_insides(curve, h, w):
+def count_insides(curve, dirs, h, w):
     counter = 0
     for i in range(h):
         for j in range(w):
             if not (i, j) in curve:
-                if check_if_inside((i, j), curve, h, w):
+                if check_if_inside((i, j), curve, dirs, h, w):
                     counter += 1
     return counter
+
 
 def main():
     maze = read_input("input10.txt")
     start = find_start(maze)
-    idx_trail, symbol_trail = traverse(maze, start)
+    idx_trail, symbol_trail, dir_trail = traverse(maze, start)
     print(len(symbol_trail))
     furthest = (len(symbol_trail) - 1) / 2
     print(furthest)
+    # print(dir_trail)
 
-    outl = draw_outline(maze, idx_trail)
+    outl = draw_outline(maze, idx_trail, symbol_trail)
     print_maze(outl)
 
     height = len(maze)
     width = len(maze[0])
 
-    points_inside = count_insides(idx_trail, height, width)
+    points_inside = count_insides(idx_trail, dir_trail, height, width)
     print(points_inside)
 
 
