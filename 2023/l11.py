@@ -49,11 +49,26 @@ def expand_universe(universe):
     return expanded_universe
 
 
-def shortest_distance(galaxy1, galaxy2):
+def shortest_distance(galaxy1, galaxy2, empty_rows, empty_cols):
     # calculate shortest manhattan distance between two galaxies in the 2D array (universe)
     gx1, gy1 = galaxy1
     gx2, gy2 = galaxy2
-    return abs(gx2 - gx1) + abs(gy2 - gy1)
+
+    dist_x = abs(gx2 - gx1)
+    xstart = min(gx1, gx2)
+    xstop = max(gx1, gx2)
+    for i in range(xstart, xstop):
+        if i in empty_rows:
+            dist_x += 999999
+
+    dist_y = abs(gy2 - gy1)
+    ystart = min(gy1, gy2)
+    ystop = max(gy1, gy2)
+    for i in range(ystart, ystop):
+        if i in empty_cols:
+            dist_y += 999999
+
+    return dist_x + dist_y
 
 
 def find_galaxy_coordinates(universe):
@@ -82,7 +97,7 @@ def find_empty_cols(universe):
     return empty_cols
 
 
-def shortest_path(galaxies):
+def shortest_path(galaxies, empty_rows, empty_cols):
     nrofpairs = 0
     tot_distance = 0
     # find pairwise distances between all galaxies
@@ -92,7 +107,7 @@ def shortest_path(galaxies):
         for gal in galaxies:
             if gal != galaxy:
                 nrofpairs += 1
-                gal_distance += shortest_distance(galaxy, gal)
+                gal_distance += shortest_distance(galaxy, gal, empty_rows, empty_cols)
         tot_distance += gal_distance
     return tot_distance
 
@@ -101,15 +116,18 @@ def main():
     img = read_input("input11.txt")
     # pretty_print(img)
     print("_______________")
-    img_expanded = expand_universe(img)
+    # img_expanded = expand_universe(img)
     # pretty_print(img_expanded)
-    galaxy_coords = find_galaxy_coordinates(img_expanded)
-    tot_distance = shortest_path(galaxy_coords) / 2
+    galaxy_coords = find_galaxy_coordinates(img)
+    empty_rows = find_empty_rows(img)
+    empty_cols = find_empty_cols(img)
+
+    tot_distance = shortest_path(galaxy_coords, empty_rows, empty_cols)/2
 
     print(tot_distance)
 
 
 if __name__ == "__main__":
     main()
-    # print(shortest_distance((7,12), (10,9)))
+    # print(shortest_distance((7,12), (7,9), [], [10]))
 # print(read_input("input11.txt"))
