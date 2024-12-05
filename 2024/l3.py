@@ -14,17 +14,12 @@ def p1(st: str) -> int:
 
 # preprocess the data to return a list with only those chunks to be included
 def pre(full: str) -> list[str]:
-    todo_list = []
     dont_split = re.split("don't\(\)", full)
-    todo_list.append(dont_split[0])  # first one always included
+    todo_list = [dont_split[0]]  # up until first don't() always included
 
     for el in dont_split[1:]:
-        do_split = re.split('do\(\)', el)
-
-        if len(do_split) == 1:  # no Do()'s in this chunk
-            continue
-        else:
-            todo_list += do_split[1:]  # everything from first Do() and onwards
+        # include everything from first do() and onwards
+        todo_list += re.split('do\(\)', el)[1:]
     return todo_list
 
 
@@ -32,9 +27,7 @@ def pre(full: str) -> list[str]:
 def p2(txt: str) -> int:
     totsum = 0
     chunks : list[str] = pre(txt)
-
-    for chunk in chunks:  # use only every second list item
-        totsum += p1(chunk)
+    for chunk in chunks: totsum += p1(chunk)
     return totsum
 
 
